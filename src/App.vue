@@ -1,25 +1,42 @@
 <template>
   <div class="app">
     <header class="app-header">
-      <h1>AgroClimat – Monitoring climatique au Sénégal</h1>
+      <div>
+        <p class="eyebrow">AgroClimat Sénégal</p>
+        <h1>Monitoring climatique en temps réel</h1>
+      </div>
+      <p class="header-copy">
+        Cliquez sur une région ou utilisez votre position pour afficher température, humidité, vent et conditions météo.
+      </p>
     </header>
 
     <main class="app-main">
-      <section class="map-section">
+      <section class="map-section" aria-label="Carte des régions du Sénégal">
         <SenegalMap
           :selected-region="selectedRegionId"
-          @region-select="handleRegionSelect"
+          @region-select="selectRegion"
         />
       </section>
 
-      <aside class="side-panel" v-if="selectedRegion">
-        <h2>{{ selectedRegion.name }}</h2>
+      <aside class="side-panel" aria-label="Détails météo">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Météo OpenWeatherMap</p>
+            <h2>{{ selectedRegion.name }}</h2>
+          </div>
+          <button class="position-button" type="button" :disabled="loading" @click="useMyPosition">
+            Ma position
+          </button>
+        </div>
+
+        <p v-if="sourceLabel" class="source-line">{{ sourceLabel }}</p>
+
         <dl class="region-meta">
           <dt>Code région</dt>
           <dd><code>{{ selectedRegion.code }}</code></dd>
           <dt>Superficie</dt>
           <dd>{{ selectedRegion.superficie }}</dd>
-          <dt>Population (approx.)</dt>
+          <dt>Population</dt>
           <dd>{{ selectedRegion.population }}</dd>
           <dt v-if="selectedRegion.lat">Coordonnées</dt>
           <dd v-if="selectedRegion.lat" class="coords">
@@ -27,65 +44,77 @@
           </dd>
         </dl>
 
-        <p class="placeholder">
-          Données météo à venir (température, humidité, risque agricole…).
-        </p>
+        <ClimatPanel
+          :region="selectedRegion"
+          :weather="weather"
+          :loading="loading"
+          :error="errorMessage"
+          @retry="loadDefaultWeather"
+        />
       </aside>
     </main>
   </div>
 </template>
 
-<script>
+<script setup>
+import ClimatPanel from './components/dashboard/ClimatPanel.vue'
 import SenegalMap from './components/map/SenegalMap.vue'
-import { REGION_MAP, getRegionById } from './data/regions'
+import { useClimat } from './composables/useClimat'
 
-export default {
-  name: 'App',
-  components: {
-    SenegalMap,
-  },
-  data() {
-    return {
-      selectedRegionId: 'SNDK', // Dakar par défaut
-    }
-  },
-  computed: {
-    selectedRegion() {
-      return getRegionById(this.selectedRegionId) || null
-    },
-  },
-  methods: {
-    handleRegionSelect(regionId) {
-      this.selectedRegionId = regionId
-    },
-  },
-}
+const {
+  selectedRegionId,
+  selectedRegion,
+  weather,
+  loading,
+  errorMessage,
+  sourceLabel,
+  selectRegion,
+  useMyPosition,
+  loadDefaultWeather,
+} = useClimat()
 </script>
 
-<style>
+<style scoped>
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f8fafc;
 }
 
 .app-header {
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
 }
 
 .app-header h1 {
+  margin: 0.2rem 0 0.5rem;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.header-copy {
+  max-width: 760px;
   margin: 0;
-  font-size: 1.4rem;
-  font-weight: 600;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: #16a34a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .app-main {
   flex: 1;
   display: flex;
-  flex-direction: row;
   gap: 1.5rem;
   padding: 1.5rem;
 }
@@ -93,69 +122,102 @@ export default {
 .map-section {
   flex: 2;
   min-width: 0;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
 
 .side-panel {
-  flex: 1;
+  flex: 0 0 390px;
   padding: 1.25rem;
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
 }
 
-.side-panel h2 {
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.panel-header h2 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
+  color: #0f172a;
+}
+
+.position-button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.65rem 0.9rem;
+  color: #ffffff;
+  background: #16a34a;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.position-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.position-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.source-line {
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  color: #166534;
+  background: #dcfce7;
+  font-size: 0.9rem;
 }
 
 .region-meta {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.35rem 1rem;
+  gap: 0.45rem 1rem;
+  padding: 0 0 1rem;
+  border-bottom: 1px solid #e5e7eb;
   font-size: 0.9rem;
 }
 
 .region-meta dt {
-  color: #6b7280;
-  font-weight: 500;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .region-meta dd {
   margin: 0;
+  color: #0f172a;
   font-variant-numeric: tabular-nums;
 }
 
 .region-meta code {
-  font-size: 0.85rem;
-  background: #f3f4f6;
   padding: 2px 6px;
   border-radius: 4px;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .coords {
-  font-family: ui-monospace, monospace;
-  font-size: 0.85rem;
+  font-family: ui-monospace, Consolas, monospace;
 }
 
-.placeholder {
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: #6b7280;
-  line-height: 1.5;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 1050px) {
   .app-main {
     flex-direction: column;
   }
 
-  .map-section {
-    max-width: 100%;
+  .side-panel {
+    flex-basis: auto;
   }
 }
 </style>
