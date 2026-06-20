@@ -34,10 +34,6 @@
         <dl class="region-meta">
           <dt>Code région</dt>
           <dd><code>{{ selectedRegion.code }}</code></dd>
-          <dt>Superficie</dt>
-          <dd>{{ selectedRegion.superficie }}</dd>
-          <dt>Population</dt>
-          <dd>{{ selectedRegion.population }}</dd>
           <dt v-if="selectedRegion.lat">Coordonnées</dt>
           <dd v-if="selectedRegion.lat" class="coords">
             {{ selectedRegion.lat.toFixed(4) }}°N, {{ Math.abs(selectedRegion.lon).toFixed(4) }}°W
