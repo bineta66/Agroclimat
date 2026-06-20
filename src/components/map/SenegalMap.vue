@@ -99,14 +99,14 @@ export default {
 }
 
 .region {
-  fill: #6f9c76;
+  fill: #55c96b;
   cursor: pointer;
   transition: fill 0.2s ease, opacity 0.2s ease, stroke-width 0.2s ease;
 }
 
 .region--hover {
   opacity: 0.8;
-  fill: #4f7f58;
+  fill: #55c96b;
 }
 
 .region--selected {

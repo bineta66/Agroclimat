@@ -12,23 +12,32 @@
         />
       </section>
 
-      <section class="side-panel" v-if="selectedRegion">
+      <aside class="side-panel" v-if="selectedRegion">
         <h2>{{ selectedRegion.name }}</h2>
-        <p><strong>Code SVG :</strong> {{ selectedRegion.id }}</p>
-        <p><strong>Code métier :</strong> {{ selectedRegion.code }}</p>
+        <dl class="region-meta">
+          <dt>Code région</dt>
+          <dd><code>{{ selectedRegion.code }}</code></dd>
+          <dt>Superficie</dt>
+          <dd>{{ selectedRegion.superficie }}</dd>
+          <dt>Population (approx.)</dt>
+          <dd>{{ selectedRegion.population }}</dd>
+          <dt v-if="selectedRegion.lat">Coordonnées</dt>
+          <dd v-if="selectedRegion.lat" class="coords">
+            {{ selectedRegion.lat.toFixed(4) }}°N, {{ Math.abs(selectedRegion.lon).toFixed(4) }}°W
+          </dd>
+        </dl>
 
-        <!-- Ici plus tard : WeatherPanel, RiskBadge, TemperatureChart, etc. -->
         <p class="placeholder">
-          Panneau météo à implémenter ici (température, humidité, risque, graph…)
+          Données météo à venir (température, humidité, risque agricole…).
         </p>
-      </section>
+      </aside>
     </main>
   </div>
 </template>
 
 <script>
 import SenegalMap from './components/map/SenegalMap.vue'
-import { senegalRegionsFromSvg } from './data/regionsFromSvg'
+import { REGION_MAP, getRegionById } from './data/regions'
 
 export default {
   name: 'App',
@@ -37,20 +46,17 @@ export default {
   },
   data() {
     return {
-      // id SVG de la région sélectionnée, ex: 'SNDK'
       selectedRegionId: 'SNDK', // Dakar par défaut
     }
   },
   computed: {
-    // objet complet de la région sélectionnée (id, code, name, d)
     selectedRegion() {
-      return senegalRegionsFromSvg.find((r) => r.id === this.selectedRegionId) || null
+      return getRegionById(this.selectedRegionId) || null
     },
   },
   methods: {
     handleRegionSelect(regionId) {
       this.selectedRegionId = regionId
-      // plus tard : déclencher ici l'appel API météo / store
     },
   },
 }
@@ -86,30 +92,60 @@ export default {
 
 .map-section {
   flex: 2;
-  max-width: 60%;
+  min-width: 0;
 }
 
 .side-panel {
   flex: 1;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem;
   border-radius: 0.75rem;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .side-panel h2 {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-size: 1.25rem;
 }
 
-.placeholder {
-  margin-top: 0.75rem;
+.region-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1rem;
   font-size: 0.9rem;
+}
+
+.region-meta dt {
   color: #6b7280;
+  font-weight: 500;
+}
+
+.region-meta dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.region-meta code {
+  font-size: 0.85rem;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.coords {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+.placeholder {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.5;
 }
 
 /* Responsive */
@@ -123,5 +159,3 @@ export default {
   }
 }
 </style>
-
-

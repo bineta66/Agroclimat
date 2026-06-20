@@ -1,19 +1,28 @@
 
 /**
- * Génération automatique des régions à partir du fichier sn.svg
- * On importe le SVG brut comme texte et on extrait les balises <path>.
+ * Génération automatique des régions à partir du fichier sn.svg.
  *
- * Limitations :
- * - On ne récupère que id, name et d.
- * - Le "code" métier (dakar, thies, etc.) est dérivé du name, tu peux l’ajuster si besoin.
+ * Améliorations :
+ * - Extraction de la bounding box (xmin, ymin, xmax, ymax) de chaque path.
+ * - Calcul automatique du centroïde (cx, cy) pour chaque région,
+ *   basé sur les coordonnées géométriques du chemin SVG.
+ * - Fallback sur les centroïdes du groupe <g id="label_points"> du SVG,
+ *   disponible dans src/data/svgLabels.js.
+ *
+ * Limitations connues :
+ * - Le centroïde calculé par bounding box n'est pas le centroïde géographique
+ *   exact (aire) mais suffisant pour positionner un label.
+ * - Les coordonnées lat/lon ne sont pas dérivées automatiquement du SVG ;
+ *   elles sont fournies dans src/data/regions.js pour référence.
  */
 
 import svgRaw from '../assets/svg/sn.svg?raw'
+import { REGION_MAP } from './regions'
+import { SVG_LABELS } from './svgLabels'
 
 function parseRegionsFromSvg(rawSvg) {
   const regions = []
 
-  // On cherche toutes les balises <path ...> ... </path>
   const pathRegex = /<path\s+([^>]+)>/g
   let match
 
@@ -32,23 +41,46 @@ function parseRegionsFromSvg(rawSvg) {
     const name = nameMatch ? nameMatch[1] : id
     const d = dMatch[1]
 
-    // On dérive un "code" métier simple à partir du nom (minuscules, sans accents approximatif)
-    const code = normalizeNameToCode(name)
+    const ext = computeBBox(d)
+    const cx = ext ? Math.round((ext.xmin + ext.xmax) / 2) : null
+    const cy = ext ? Math.round((ext.ymin + ext.ymax) / 2) : null
 
-    regions.push({ id, name, d, code })
+    const label = SVG_LABELS[id]
+    const ref = REGION_MAP[id]
+
+    regions.push({
+      id,
+      name,
+      d,
+      code: ref ? ref.code : id,
+      bbox: ext,
+      cx: label ? label.cx : cx,
+      cy: label ? label.cy : cy,
+      lat: ref ? ref.lat : null,
+      lon: ref ? ref.lon : null,
+    })
   }
 
   return regions
 }
 
-function normalizeNameToCode(name) {
-  // Simplification pour ton cas ; adapte si nécessaire
-  return name
-    .toLowerCase()
-    .normalize('NFD') // enlever les accents
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '-') // espaces -> tirets
+function computeBBox(d) {
+  const nums = d.match(/[-+]?\d*\.?\d+/g)
+  if (!nums) {
+    return null
+  }
+  const vals = nums.map(Number)
+  const xs = vals.filter((_, i) => i % 2 === 0)
+  const ys = vals.filter((_, i) => i % 2 !== 0)
+  if (!xs.length || !ys.length) {
+    return null
+  }
+  return {
+    xmin: Math.min(...xs),
+    ymin: Math.min(...ys),
+    xmax: Math.max(...xs),
+    ymax: Math.max(...ys),
+  }
 }
 
 export const senegalRegionsFromSvg = parseRegionsFromSvg(svgRaw)
-
