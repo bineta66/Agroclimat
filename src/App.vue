@@ -11,43 +11,42 @@
     </header>
 
     <main class="app-main">
-      <section class="map-section" aria-label="Carte des régions du Sénégal">
-        <SenegalMap
-          :selected-region="selectedRegionId"
-          @region-select="selectRegion"
-        />
-      </section>
+      <div class="content-wrapper">
+        <section class="map-section" aria-label="Carte des régions du Sénégal">
+          <SenegalMap
+            :selected-region="selectedRegionId"
+            @region-select="selectRegion"
+          />
+        </section>
 
-      <aside class="side-panel" aria-label="Détails météo">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Météo OpenWeatherMap</p>
-            <h2>{{ selectedRegion.name }}</h2>
+        <aside class="side-panel" aria-label="Détails météo">
+          <div class="panel-header">
+
+            <button class="position-button" type="button" :disabled="loading" @click="useMyPosition">
+              Ma position
+            </button>
           </div>
-          <button class="position-button" type="button" :disabled="loading" @click="useMyPosition">
-            Ma position
-          </button>
+
+          <p v-if="sourceLabel" class="source-line">{{ sourceLabel }}</p>
+
+
+
+          <ClimatPanel
+            :region="selectedRegion"
+            :weather="weather"
+            :loading="loading"
+            :error="errorMessage"
+            @retry="loadDefaultWeather"
+          />
+        </aside>
+      </div>
+
+      <section v-if="weather && selectedRegion" class="chart-section" aria-label="Évolution de la température">
+        <div class="chart-header">
+          <h3>Évolution de la température - 7 derniers jours</h3>
         </div>
-
-        <p v-if="sourceLabel" class="source-line">{{ sourceLabel }}</p>
-
-        <dl class="region-meta">
-          <dt>Code région</dt>
-          <dd><code>{{ selectedRegion.code }}</code></dd>
-          <dt v-if="selectedRegion.lat">Coordonnées</dt>
-          <dd v-if="selectedRegion.lat" class="coords">
-            {{ selectedRegion.lat.toFixed(4) }}°N, {{ Math.abs(selectedRegion.lon).toFixed(4) }}°W
-          </dd>
-        </dl>
-
-        <ClimatPanel
-          :region="selectedRegion"
-          :weather="weather"
-          :loading="loading"
-          :error="errorMessage"
-          @retry="loadDefaultWeather"
-        />
-      </aside>
+        <TemperatureChart :weather="weather" />
+      </section>
     </main>
   </div>
 </template>
@@ -55,6 +54,7 @@
 <script setup>
 import ClimatPanel from './components/dashboard/ClimatPanel.vue'
 import SenegalMap from './components/map/SenegalMap.vue'
+import TemperatureChart from './components/charts/TemperatureChart.vue'
 import { useClimat } from './composables/useClimat'
 
 const {
@@ -109,11 +109,12 @@ const {
 }
 
 .app-main {
-  flex: 1;
-  display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
-}
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
 
 .map-section {
   flex: 2;
@@ -207,13 +208,31 @@ const {
   font-family: ui-monospace, Consolas, monospace;
 }
 
-@media (max-width: 1050px) {
-  .app-main {
-    flex-direction: column;
-  }
+.content-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  flex: 1;
+}
 
-  .side-panel {
-    flex-basis: auto;
+.chart-section {
+  width: 52%;
+  /* margin-top: 1.5rem; */
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.chart-header h3 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+@media (max-width: 1050px) {
+  .content-wrapper {
+    flex-direction: column;
   }
 }
 </style>

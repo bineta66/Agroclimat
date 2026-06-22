@@ -6,13 +6,13 @@
 
     <ErreurMessage v-else-if="error" :error="error" @retry="$emit('retry')" />
 
-    <div v-else-if="weather && region" class="panel-body">
-      <p class="panel-subtitle">Données temps réel</p>
-      <ClimatCard :region="region" :weather="weather" />
-      <p class="location-note">
-        Région : {{ region.name }} · Code : {{ region.code }}
-      </p>
-    </div>
+<div v-else-if="weather && region" class="panel-body">
+       <p class="panel-subtitle">Données temps réel</p>
+       <ClimatCard :region="region" :weather="weather" />
+       <p class="location-note">
+         Région : {{ region.name }} · Code : {{ region.code }}
+       </p>
+     </div>
 
     <div v-else class="panel-body empty-state">
       Sélectionnez une région sur la carte pour charger sa météo.
