@@ -1,53 +1,57 @@
 <template>
   <div class="app">
-    <header class="app-header">
-      <div>
-        <p class="eyebrow">AgroClimat Sénégal</p>
-        <h1>Monitoring climatique en temps réel</h1>
-      </div>
-      <p class="header-copy">
-        Cliquez sur une région ou utilisez votre position pour afficher température, humidité, vent et conditions météo.
-      </p>
-    </header>
+    
 
     <main class="app-main">
-      <section class="map-section" aria-label="Carte des régions du Sénégal">
-        <SenegalMap
-          :selected-region="selectedRegionId"
-          @region-select="selectRegion"
-        />
-      </section>
+      <!-- Sidebar à gauche -->
+      <Sidebar class="app-sidebar" />
 
-      <aside class="side-panel" aria-label="Détails météo">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Météo OpenWeatherMap</p>
-            <h2>{{ selectedRegion.name }}</h2>
+      <!-- Contenu principal : carte + panneau météo -->
+      <div class="app-main-content">
+        <section class="map-section" aria-label="Carte des régions du Sénégal">
+          <SenegalMap
+            :selected-region="selectedRegionId"
+            @region-select="selectRegion"
+          />
+        </section>
+
+        <aside class="side-panel" aria-label="Détails météo">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Météo OpenWeatherMap</p>
+              <h2>{{ selectedRegion.name }}</h2>
+            </div>
+            <button
+              class="position-button"
+              type="button"
+              :disabled="loading"
+              @click="useMyPosition"
+            >
+              Ma position
+            </button>
           </div>
-          <button class="position-button" type="button" :disabled="loading" @click="useMyPosition">
-            Ma position
-          </button>
-        </div>
 
-        <p v-if="sourceLabel" class="source-line">{{ sourceLabel }}</p>
+          <p v-if="sourceLabel" class="source-line">{{ sourceLabel }}</p>
 
-        <dl class="region-meta">
-          <dt>Code région</dt>
-          <dd><code>{{ selectedRegion.code }}</code></dd>
-          <dt v-if="selectedRegion.lat">Coordonnées</dt>
-          <dd v-if="selectedRegion.lat" class="coords">
-            {{ selectedRegion.lat.toFixed(4) }}°N, {{ Math.abs(selectedRegion.lon).toFixed(4) }}°W
-          </dd>
-        </dl>
+          <dl class="region-meta">
+            <dt>Code région</dt>
+            <dd><code>{{ selectedRegion.code }}</code></dd>
+            <dt v-if="selectedRegion.lat">Coordonnées</dt>
+            <dd v-if="selectedRegion.lat" class="coords">
+              {{ selectedRegion.lat.toFixed(4) }}°N,
+              {{ Math.abs(selectedRegion.lon).toFixed(4) }}°W
+            </dd>
+          </dl>
 
-        <ClimatPanel
-          :region="selectedRegion"
-          :weather="weather"
-          :loading="loading"
-          :error="errorMessage"
-          @retry="loadDefaultWeather"
-        />
-      </aside>
+          <ClimatPanel
+            :region="selectedRegion"
+            :weather="weather"
+            :loading="loading"
+            :error="errorMessage"
+            @retry="loadDefaultWeather"
+          />
+        </aside>
+      </div>
     </main>
   </div>
 </template>
@@ -56,7 +60,7 @@
 import ClimatPanel from './components/dashboard/ClimatPanel.vue'
 import SenegalMap from './components/map/SenegalMap.vue'
 import { useClimat } from './composables/useClimat'
-
+import Sidebar from './components/dashboard/Sidebar.vue'
 const {
   selectedRegionId,
   selectedRegion,
@@ -111,17 +115,24 @@ const {
 .app-main {
   flex: 1;
   display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  
 }
 
 .map-section {
-  flex: 2;
+  flex: 1.2;
   min-width: 0;
+  height: 420px;
   padding: 1rem;
   border-radius: 1rem;
   background: #ffffff;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.app-main-content {
+  flex: 1;
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 
 .side-panel {
