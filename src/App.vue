@@ -1,48 +1,56 @@
 <template>
   <div class="app">
-    
+    <Sidebar class="app-sidebar" />
 
     <main class="app-main">
-      <!-- Sidebar à gauche -->
-      <Sidebar class="app-sidebar" />
+      <Navbar
+        :loading="loading"
+        :notification-count="notificationCount"
+        @use-position="useMyPosition"
+      />
 
-      <!-- Contenu principal : carte + panneau météo -->
-      <div class="app-main-content">
-        <section class="map-section" aria-label="Carte des régions du Sénégal">
-          <SenegalMap
-            :selected-region="selectedRegionId"
-            @region-select="selectRegion"
-          />
-        </section>
+      <div class="content-wrapper">
+        <div class="map-chart-wrapper">
+          
+          <!-- MAP -->
+          <section class="map-section" aria-label="Carte des régions du Sénégal">
+            <SenegalMap
+              :selected-region="selectedRegionId"
+              @region-select="selectRegion"
+            />
+          </section>
 
+          <!-- CHART -->
+          <section
+            v-if="weather && selectedRegion"
+            class="chart-section"
+            aria-label="Évolution de la température"
+          >
+            <div class="chart-header">
+              <h3>Évolution de la température - 7 derniers jours</h3>
+            </div>
+
+            <TemperatureChart :weather="weather" />
+          </section>
+
+        </div>
+
+        <!-- SIDE PANEL -->
         <aside class="side-panel" aria-label="Détails météo">
            <template v-if="selectedRegion"> 
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Météo OpenWeatherMap</p>
-              <h2>{{ selectedRegion.name }}</h2>
+              <p class="eyebrow">Météo</p>
+              <h2>
+                {{ selectedRegion?.name || 'Aucune région sélectionnée' }}
+              </h2>
             </div>
-            <button
-              class="position-button"
-              type="button"
-              :disabled="loading"
-              @click="useMyPosition"
-            >
-              Ma position
-            </button>
+
           </div>
 
-          <p v-if="sourceLabel" class="source-line">{{ sourceLabel }}</p>
-
-          <dl class="region-meta">
-            <dt>Code région</dt>
-            <dd><code>{{ selectedRegion.code }}</code></dd>
-            <dt v-if="selectedRegion.lat">Coordonnées</dt>
-            <dd v-if="selectedRegion.lat" class="coords">
-              {{ selectedRegion.lat.toFixed(4) }}°N,
-              {{ Math.abs(selectedRegion.lon).toFixed(4) }}°W
-            </dd>
-          </dl>
+          <p v-if="sourceLabel" class="source-line">
+            {{ sourceLabel }}
+          </p>
 
           <ClimatPanel
             :region="selectedRegion"
@@ -86,159 +94,119 @@ const {
   useMyPosition,
   loadDefaultWeather,
 } = useClimat()
+
+const notificationCount = 3
 </script>
 
 <style scoped>
 .app {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f8fafc;
+  background: #fff;
 }
 
-.app-header {
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+/* SIDEBAR */
+.app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  border-right: 1px solid #e5e7eb;
+  z-index: 1000;
 }
 
-.app-header h1 {
-  margin: 0.2rem 0 0.5rem;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.header-copy {
-  max-width: 760px;
-  margin: 0;
-  color: #475569;
-  line-height: 1.6;
-}
-
-.eyebrow {
-  margin: 0 0 0.35rem;
-  color: #16a34a;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
+/* MAIN */
 .app-main {
-  flex: 1;
+  width: calc(100% - 260px);
+  margin-left: 260px;
   display: flex;
-  
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
-.map-section {
+/* WRAPPERS */
+.content-wrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.map-chart-wrapper {
+  display: flex;
+  flex-direction: column;
   flex: 1.2;
-  min-width: 0;
-  height: 420px;
+  gap: 0.5rem;
+}
+
+/* MAP */
+.map-section {
+  height: 460px;
   padding: 1rem;
   border-radius: 1rem;
-  background: #ffffff;
+  background: #fff;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
 
-.app-main-content {
-  flex: 1;
-  display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
-}
-
-.side-panel {
-  flex: 0 0 390px;
-  padding: 1.25rem;
+/* CHART */
+.chart-section {
+  padding: 1rem;
   border-radius: 1rem;
   border: 1px solid #e5e7eb;
-  background: #ffffff;
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.chart-header h3 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+/* SIDE PANEL */
+.side-panel {
+  height: 86%;
+  flex: 0 0 320px;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
 
 .panel-header {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  align-items: flex-start;
 }
 
-.panel-header h2 {
-  margin: 0;
-  font-size: 1.35rem;
-  color: #0f172a;
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #16a34a;
+  text-transform: uppercase;
 }
 
 .position-button {
-  flex: 0 0 auto;
-  border: 0;
+  border: none;
+  padding: 0.6rem 0.9rem;
   border-radius: 999px;
-  padding: 0.65rem 0.9rem;
-  color: #ffffff;
   background: #16a34a;
+  color: white;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.position-button:hover:not(:disabled) {
-  transform: translateY(-1px);
 }
 
 .position-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .source-line {
   margin: 0.75rem 0;
-  padding: 0.6rem 0.75rem;
+  padding: 0.6rem;
   border-radius: 0.75rem;
-  color: #166534;
   background: #dcfce7;
-  font-size: 0.9rem;
-}
-
-.region-meta {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.45rem 1rem;
-  padding: 0 0 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 0.9rem;
-}
-
-.region-meta dt {
-  color: #64748b;
-  font-weight: 600;
-}
-
-.region-meta dd {
-  margin: 0;
-  color: #0f172a;
-  font-variant-numeric: tabular-nums;
-}
-
-.region-meta code {
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-.coords {
-  font-family: ui-monospace, Consolas, monospace;
-}
-
-@media (max-width: 1050px) {
-  .app-main {
-    flex-direction: column;
-  }
-
-  .side-panel {
-    flex-basis: auto;
-  }
+  color: #166534;
 }
 </style>

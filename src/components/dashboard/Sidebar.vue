@@ -2,7 +2,14 @@
   <aside class="sidebar">
     <!-- Logo / titre -->
     <div class="sidebar-logo">
-      <div class="logo-mark">AC</div>
+      <div class="logo-mark">
+        <img
+          src="/image.png"
+          alt="Logo AgroClimat"
+          class="logo-image"
+        />
+      </div>
+
       <div class="logo-text">
         <span class="logo-title">AgroClimat</span>
         <span class="logo-subtitle">Sénégal</span>
@@ -20,7 +27,12 @@
         :aria-current="item.id === activeId ? 'page' : undefined"
         @click="emit('change-tab', item.id)"
       >
-        <component :is="item.icon" class="nav-icon" :size="18" aria-hidden="true" />
+        <component
+          :is="item.icon"
+          class="nav-icon"
+          :size="18"
+          aria-hidden="true"
+        />
         <span class="nav-label">{{ item.label }}</span>
       </button>
     </nav>
@@ -28,7 +40,7 @@
 </template>
 
 <script setup>
-import { Home, CloudSun, TriangleAlert, TrendingUp } from 'lucide-vue-next'
+import {CloudSun, TriangleAlert, TrendingUp, Settings, Leaf } from '@lucide/vue'
 
 defineProps({
   activeId: {
@@ -40,17 +52,18 @@ defineProps({
 const emit = defineEmits(['change-tab'])
 
 const items = [
-  { id: 'overview', label: 'Vue d’ensemble', icon: Home },
-  { id: 'meteo', label: 'Météo', icon: CloudSun },
-  { id: 'risques', label: 'Risques', icon: TriangleAlert },
+  { id: 'meteo', label: 'Météo Agricole', icon: CloudSun },
+  { id: 'alerte', label: 'Alerte', icon: TriangleAlert },
   { id: 'historique', label: 'Historique', icon: TrendingUp },
+  { id: 'conseils', label: 'Conseils agricole', icon: Leaf },
+  { id: 'parametre', label: 'Paramètre', icon: Settings },
 ]
 </script>
 
 <style scoped>
 .sidebar {
-    position: sticky;
-    top: 0;
+  position: sticky;
+  top: 0;
   width: 220px;
   height: 100vh;
   padding: 1.25rem 1rem;
@@ -70,18 +83,20 @@ const items = [
   gap: 0.75rem;
 }
 
+/*  MODIFIÉ : plus de cercle blanc */
 .logo-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: radial-gradient(circle at top, #22c55e, #15803d);
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 0.9rem;
-  color: #ecfdf5;
   flex-shrink: 0;
+}
+
+.logo-image {
+  width: 300%;
+  height: 300%;
+  object-fit: contain;
 }
 
 .logo-text {
@@ -119,7 +134,10 @@ const items = [
   gap: 0.5rem;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease,
+    color 0.15s ease;
 }
 
 .nav-item:hover {
@@ -147,9 +165,7 @@ const items = [
   text-align: left;
 }
 
-/* Responsive : la sidebar verticale devient une barre horizontale
-   scrollable sur mobile/tablette, pour respecter l'exigence
-   "responsive du mobile au desktop" du cahier des charges. */
+/* Responsive */
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
@@ -182,7 +198,6 @@ const items = [
     display: none;
   }
 
-  /* On garde le label visible pour l'onglet actif, plus lisible au pouce */
   .nav-item--active .nav-label {
     display: inline;
   }
