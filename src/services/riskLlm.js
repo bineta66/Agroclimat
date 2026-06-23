@@ -1,4 +1,4 @@
-import { calculateRisk } from './riskCalculator.js'
+import { calculateRisk } from '../utils/calculateRisk.js'
 
 const SYSTEM_PROMPT = `Tu es un expert en climatologie agricole au Sénégal.
 On te donne la température (°C) et l'humidité (%) d'une région.
@@ -58,7 +58,7 @@ export async function calculateRiskLLM(temp, humidity) {
       typeof result.color !== 'string'
     ) throw new Error('Structure JSON invalide')
 
-    print("ok")
+    console.log('[riskLLM] Calcul réussi')
     return result
 
 

@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { getRegionById } from '../data/regions'
-import { calculateRiskLLM } from '../services/riskLLM.js'
+import { calculateRiskLLM } from '../services/riskLlm.js'
 
 export const DEFAULT_REGION_ID = 'SNDK'
 
