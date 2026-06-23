@@ -32,6 +32,7 @@ export function useClimat() {
   const weather = computed(() => state.weather)
   const loading = computed(() => state.loading)
   const error = computed(() => state.error)
+  const risk = computed(() => state.risk)
 
   const sourceLabel = computed(() => {
     if (state.geolocationMessage) {
@@ -82,6 +83,7 @@ export function useClimat() {
     selectedRegionId,
     selectedRegion,
     weather,
+    risk,
     loading,
     error,
     errorMessage,

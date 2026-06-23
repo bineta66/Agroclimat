@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
 import { getRegionById } from '../data/regions'
+import { calculateRisk } from '../utils/calculateRisk'
 
 export const DEFAULT_REGION_ID = 'SNDK'
 
@@ -17,6 +18,7 @@ const state = reactive({
   error: null,
   source: 'manuel',
   geolocationMessage: null,
+  risk : null
 })
 
 export function getClimatState() {
@@ -50,6 +52,8 @@ export function setWeatherSuccess(weather, source = 'manuel', geolocationMessage
   state.error = null
   state.source = source
   state.geolocationMessage = geolocationMessage
+  state.risk = calculateRisk(weather?.temp, weather?.humidity)
+
 }
 
 export function setWeatherError(error) {

@@ -34,6 +34,10 @@ defineProps({
     type: Object,
     default: null,
   },
+  risk: {
+    type: Object,
+    default: null
+  },
   loading: {
     type: Boolean,
     default: false,
