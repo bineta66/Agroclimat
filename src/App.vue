@@ -77,9 +77,12 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import Sidebar from './components/dashboard/Sidebar.vue'
 import ClimatPanel from './components/dashboard/ClimatPanel.vue'
 import SenegalMap from './components/map/SenegalMap.vue'
+import TemperatureChart from './components/charts/TemperatureChart.vue'
+import Navbar from './components/dashboard/Navbar.vue'
 import { useClimat } from './composables/useClimat'
 import RiskBadge from './components/dashboard/RiskBadge.vue'
 const {
@@ -96,6 +99,10 @@ const {
 } = useClimat()
 
 const notificationCount = 3
+
+onMounted(() => {
+  loadDefaultWeather()
+})
 </script>
 
 <style scoped>
@@ -166,7 +173,7 @@ const notificationCount = 3
 
 /* SIDE PANEL */
 .side-panel {
-  height: 86%;
+  height: 100%;
   flex: 0 0 320px;
   padding: 1rem;
   border-radius: 1rem;
