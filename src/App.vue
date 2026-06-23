@@ -37,7 +37,7 @@
 
         <!-- SIDE PANEL -->
         <aside class="side-panel" aria-label="Détails météo">
-          
+           <template v-if="selectedRegion"> 
           <div class="panel-header">
             <div>
               <p class="eyebrow">Météo</p>
@@ -55,11 +55,21 @@
           <ClimatPanel
             :region="selectedRegion"
             :weather="weather"
+            :risk="risk"
             :loading="loading"
             :error="errorMessage"
             @retry="loadDefaultWeather"
           />
 
+          <!-- Carde de risque juste en dessous du panel -->
+          <RiskBadge
+            v-if="risk && weather"
+            :risk="risk"
+            :temp="weather.temp"
+            :humidity="weather.humidity"
+          />
+
+          </template>
         </aside>
       </div>
     </main>
@@ -67,17 +77,16 @@
 </template>
 
 <script setup>
+import Sidebar from './components/dashboard/Sidebar.vue'
 import ClimatPanel from './components/dashboard/ClimatPanel.vue'
 import SenegalMap from './components/map/SenegalMap.vue'
-import TemperatureChart from './components/charts/TemperatureChart.vue'
-import Sidebar from './components/dashboard/Sidebar.vue'
-import Navbar from './components/dashboard/Navbar.vue'
 import { useClimat } from './composables/useClimat'
-
+import RiskBadge from './components/dashboard/RiskBadge.vue'
 const {
   selectedRegionId,
   selectedRegion,
   weather,
+  risk,
   loading,
   errorMessage,
   sourceLabel,
