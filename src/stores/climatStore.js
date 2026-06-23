@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { getRegionById } from '../data/regions'
-import { calculateRisk } from '../utils/calculateRisk'
+import { calculateRiskLLM } from '../services/riskLLM.js'
 
 export const DEFAULT_REGION_ID = 'SNDK'
 
@@ -46,14 +46,13 @@ export function setWeatherLoading() {
   state.error = null
 }
 
-export function setWeatherSuccess(weather, source = 'manuel', geolocationMessage = null) {
+export async function setWeatherSuccess(weather, source = 'manuel', geolocationMessage = null) {
   state.weather = weather
   state.loading = false
   state.error = null
   state.source = source
   state.geolocationMessage = geolocationMessage
-  state.risk = calculateRisk(weather?.temp, weather?.humidity)
-
+  state.risk = await calculateRiskLLM(weather?.temp, weather?.humidity)  // ← LLM
 }
 
 export function setWeatherError(error) {

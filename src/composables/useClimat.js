@@ -50,7 +50,7 @@ export function useClimat() {
       setWeatherLoading()
 
       const nextWeather = await fetchWeatherByRegion(state.region)
-      setWeatherSuccess(nextWeather, 'manuel')
+      await setWeatherSuccess(nextWeather, 'manuel')
     } catch (caughtError) {
       setWeatherError(caughtError)
     }

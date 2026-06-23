@@ -57,8 +57,6 @@ const items = [
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  /* Chemin corrigé : les fichiers dans public/ se référencent
-     depuis la racine du serveur, jamais relativement au composant. */
   background: linear-gradient(to bottom, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.98)),
     url('../../../public/paysans1.png') center/cover no-repeat;
   color: #e5e7eb;
@@ -125,18 +123,19 @@ const items = [
 }
 
 .nav-item:hover {
-  background: rgba(30, 64, 175, 0.35);
+  background: rgba(5, 65, 10, 0.35);
   transform: translateX(2px);
 }
 
 .nav-item:focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid #064f0f;
   outline-offset: 2px;
 }
 
 .nav-item--active {
-  background: rgba(30, 64, 175, 0.6);
+  background: rgba(50, 83, 45, 0.626);
   color: #e0f2fe;
+  font-weight: 700;
 }
 
 .nav-icon {
