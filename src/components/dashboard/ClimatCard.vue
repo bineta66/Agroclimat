@@ -70,37 +70,43 @@ function formatWindSpeed(value) {
   background: #ffffff;
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  border: 1px solid #f1f5f9;
 }
 
 .region-name {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #16a34a;
+  text-transform: capitalize;
 }
 
 .region-subtitle {
   margin: 0;
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .weather-main {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
-  margin: 0.5rem 0;
+  margin: 0.4rem 0;
 }
 
 .weather-icon {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
 }
 
 .temp-container {
@@ -109,7 +115,7 @@ function formatWindSpeed(value) {
 }
 
 .main-temp {
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: 700;
   color: #0f172a;
   line-height: 1;
@@ -117,32 +123,70 @@ function formatWindSpeed(value) {
 
 .weather-condition {
   margin: 0;
-  color: #334155;
-  font-size: 1rem;
+  color: #475569;
+  font-size: 0.95rem;
   text-transform: capitalize;
 }
 
 .weather-metrics {
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin-top: 0.5rem;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  width: 100%;
 }
 
 .metric-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  align-items: center;
 }
 
 .metric-label {
-  color: #64748b;
-  font-size: 0.8rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .metric-value {
   color: #0f172a;
   font-size: 0.95rem;
   font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .weather-card {
+    padding: 1.2rem;
+  }
+
+  .region-name {
+    font-size: 1.2rem;
+  }
+
+  .weather-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .main-temp {
+    font-size: 2.4rem;
+  }
+
+  .weather-metrics {
+    gap: 1rem;
+  }
+
+  .metric-label {
+    font-size: 0.7rem;
+  }
+
+  .metric-value {
+    font-size: 0.85rem;
+  }
 }
 </style>

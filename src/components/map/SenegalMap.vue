@@ -1,7 +1,6 @@
 <template>
   <svg
     baseProfile="tiny"
-    fill="#6f9c76"
     height="736"
     stroke="#ffffff"
     stroke-linecap="round"
@@ -110,7 +109,7 @@ export default {
 }
 
 .region--selected {
-  fill: #ff9800;
+  fill: #04240b;
   stroke-width: 1;
 }
 
