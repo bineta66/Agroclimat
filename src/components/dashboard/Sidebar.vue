@@ -40,23 +40,20 @@
 </template>
 
 <script setup>
-import {CloudSun, TriangleAlert, TrendingUp, Settings, Leaf } from '@lucide/vue'
+import { CloudSun, Bot } from '@lucide/vue'
 
 defineProps({
   activeId: {
     type: String,
-    default: 'overview',
+    default: 'meteo',
   },
 })
 
 const emit = defineEmits(['change-tab'])
 
 const items = [
-  { id: 'meteo', label: 'Météo Agricole', icon: CloudSun },
-  { id: 'alerte', label: 'Alerte', icon: TriangleAlert },
-  { id: 'historique', label: 'Historique', icon: TrendingUp },
-  { id: 'conseils', label: 'Conseils agricole', icon: Leaf },
-  { id: 'parametre', label: 'Paramètre', icon: Settings },
+  { id: 'meteo', label: 'Météo', icon: CloudSun },
+  { id: 'assistant', label: 'Assistant agricole', icon: Bot },
 ]
 </script>
 

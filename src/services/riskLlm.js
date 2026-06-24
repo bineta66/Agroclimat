@@ -24,7 +24,7 @@ la forte humidité particulièrement dangereuse pour les cultures.`
 
 export async function calculateRiskLLM(temp, humidity) {
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,15 +1,18 @@
 <template>
   <div class="app">
-    <Sidebar class="app-sidebar" />
+    <Sidebar
+      class="app-sidebar"
+      :active-id="currentTab"
+      @change-tab="onChangeTab"
+    />
 
     <main class="app-main">
       <Navbar
         :loading="loading"
-        :notification-count="notificationCount"
         @use-position="useMyPosition"
       />
 
-      <div class="content-wrapper">
+      <div class="content-wrapper" v-if="currentTab === 'meteo'">
         <div class="map-chart-wrapper">
           
           <!-- MAP -->
@@ -69,22 +72,45 @@
             :humidity="weather.humidity"
           />
 
+          <!-- Bouton pour ouvrir la modale alerte -->
+          <div class="modal-triggers">
+            <button type="button" class="btn-modal" @click="openAlertModal">
+              Alertes climatiques
+            </button>
+          </div>
+
           </template>
         </aside>
       </div>
+
+      <AssistantAgricole v-else-if="currentTab === 'assistant'" />
+
+      <!-- MODALE ALERTE -->
+      <Modal v-model="showAlertModal" title="Alertes climatiques" size="medium">
+        <AlerteVue />
+      </Modal>
     </main>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import Sidebar from './components/dashboard/Sidebar.vue'
 import ClimatPanel from './components/dashboard/ClimatPanel.vue'
 import SenegalMap from './components/map/SenegalMap.vue'
 import TemperatureChart from './components/charts/TemperatureChart.vue'
 import Navbar from './components/dashboard/Navbar.vue'
+
+import AssistantAgricole from './components/assistant/AssistantAgricole.vue'
+import AlerteVue from './components/alerte/AlerteVue.vue'
+import Modal from './components/ui/Modal.vue'
 import { useClimat } from './composables/useClimat'
 import RiskBadge from './components/dashboard/RiskBadge.vue'
+
+const currentTab = ref('meteo')
+const showAlertModal = ref(false)
+const showHistoriqueModal = ref(false)
+
 const {
   selectedRegionId,
   selectedRegion,
@@ -98,7 +124,19 @@ const {
   loadDefaultWeather,
 } = useClimat()
 
-const notificationCount = 3
+
+
+function onChangeTab(tabId) {
+  currentTab.value = tabId
+}
+
+function openAlertModal() {
+  showAlertModal.value = true
+}
+
+function openHistoriqueModal() {
+  showHistoriqueModal.value = true
+}
 
 onMounted(() => {
   loadDefaultWeather()
@@ -211,9 +249,37 @@ onMounted(() => {
 
 .source-line {
   margin: 0.75rem 0;
-  padding: 0.6rem;
+  padding: 0.3rem;
   border-radius: 0.75rem;
   background: #dcfce7;
   color: #166534;
+}
+
+.modal-triggers {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn-modal {
+  flex: 1;
+  border: 0;
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  background: #16a34a;
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-modal--secondary {
+  background: #ffffff;
+  color: #16a34a;
+  border: 1px solid #16a34a;
+}
+
+.btn-modal:hover {
+  opacity: 0.9;
 }
 </style>

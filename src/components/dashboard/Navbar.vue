@@ -23,14 +23,11 @@
         <span>Ma position</span>
       </button>
 
-      <button class="notification-button">
+      <button class="notification-button" aria-label="Alertes">
         <Bell :size="20" />
 
-        <span
-          v-if="notificationCount > 0"
-          class="notification-badge"
-        >
-          {{ notificationCount }}
+        <span v-if="hasAlert" :class="['notification-badge', badgeClass]">
+          {{ badgeLabel }}
         </span>
       </button>
     </div>
@@ -38,24 +35,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Search, MapPin, Bell } from 'lucide-vue-next'
+import { useAlertStore } from '../../stores/alertStore'
 
 defineProps({
   loading: {
     type: Boolean,
     default: false
-  },
-
-  notificationCount: {
-    type: Number,
-    default: 0
   }
 })
 
 defineEmits(['use-position'])
 
+const alertStore = useAlertStore()
+
 const searchQuery = ref('')
+
+const alertLevel = computed(() => alertStore.alertLevel)
+const hasAlert = computed(() => alertStore.weather.temp != null)
+
+const badgeLabel = computed(() => {
+  if (!hasAlert.value) return '0'
+  if (alertLevel.value === alertStore.ALERT_LEVEL.ROUGE) return '!'
+  if (alertLevel.value === alertStore.ALERT_LEVEL.ORANGE) return '!'
+  return '0'
+})
+
+const badgeClass = computed(() => {
+  if (!hasAlert.value) return ''
+  if (alertLevel.value === alertStore.ALERT_LEVEL.ROUGE) return 'notification-badge--rouge'
+  if (alertLevel.value === alertStore.ALERT_LEVEL.ORANGE) return 'notification-badge--orange'
+  return ''
+})
 </script>
 
 <style scoped>
@@ -206,25 +218,26 @@ const searchQuery = ref('')
   position: absolute;
   top: -2px;
   right: -2px;
-
   min-width: 18px;
   height: 18px;
-
   padding: 0 4px;
-
   border-radius: 999px;
-
   background: #ef4444;
   color: #ffffff;
-
   font-size: 0.7rem;
   font-weight: 700;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: 2px solid #ffffff;
+}
+
+.notification-badge--rouge {
+  background: #ef4444;
+}
+
+.notification-badge--orange {
+  background: #f97316;
 }
 
 /* ===========================
