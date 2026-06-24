@@ -64,11 +64,22 @@
       </div>
     </div>
   </div>
+  <div v-if="recommandationsLoading" class="reco-loading">
+    Génération des recommandations…
+  </div>
+
+  
+  <ul v-else-if="recommandations.length" class="reco-list">
+    <li v-for="(reco, i) in recommandations" :key="i" class="reco-item">
+      {{ reco }}
+    </li>
+  </ul>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-
+import { useClimat } from '../../composables/useClimat'
+const { recommandations, recommandationsLoading } = useClimat()
 const props = defineProps({
   risk: {
     type: Object,
@@ -208,5 +219,28 @@ const scoreArc = computed(() =>
   font-size: 0.75rem;
   color: #6b7280;
   line-height: 1.4;
+}
+
+.reco-list {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.reco-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #f0fdf4;
+  border-left: 3px solid #16a34a;
+  font-size: 0.82rem;
+  color: #166534;
+  line-height: 1.4;
+}
+.reco-loading {
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  color: #9ca3af;
 }
 </style>

@@ -119,6 +119,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   width: 260px;
+  flex-shrink: 0; 
   height: 100vh;
   border-right: 1px solid #e5e7eb;
   z-index: 1000;

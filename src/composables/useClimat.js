@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { fetchWeatherByRegion, getMessageErreurMeteo } from '../services/climatService'
-import { getRegionFromPosition, getMessageErreurGeolocalisation } from '../services/geolocatisationService'
+import { getRegionFromPosition } from '../services/geolocatisationService'
+import { getRecommendations } from '../services/recommendationLLM'
 import {
   DEFAULT_REGION_ID,
   WEATHER_SOURCE_LABELS,
@@ -10,14 +11,16 @@ import {
   setWeatherLoading,
   setWeatherSuccess,
   setSelectedRegion,
+  setRecommandations,
+  setRecommandationsLoading,
 } from '../stores/climatStore'
 
 const fallbackMessages = {
-  outside_senegal: 'Position hors Sénégal : Dakar chargé par défaut.',
-  permission_denied: 'Autorisation refusée : Dakar chargé par défaut.',
-  unsupported: 'Géolocalisation non disponible : Dakar chargé par défaut.',
-  position_unavailable: 'Position indisponible : Dakar chargé par défaut.',
-  timeout: 'Délai de géolocalisation dépassé : Dakar chargé par défaut.',
+  outside_senegal:     'Position hors Sénégal : Dakar chargé par défaut.',
+  permission_denied:   'Autorisation refusée : Dakar chargé par défaut.',
+  unsupported:         'Géolocalisation non disponible : Dakar chargé par défaut.',
+  position_unavailable:'Position indisponible : Dakar chargé par défaut.',
+  timeout:             'Délai de géolocalisation dépassé : Dakar chargé par défaut.',
 }
 
 export function useClimat() {
@@ -28,21 +31,22 @@ export function useClimat() {
     set: (regionId) => selectRegion(regionId),
   })
 
-  const selectedRegion = computed(() => state.region)
-  const weather = computed(() => state.weather)
-  const loading = computed(() => state.loading)
-  const error = computed(() => state.error)
-  const risk = computed(() => state.risk)
+  const selectedRegion        = computed(() => state.region)
+  const weather               = computed(() => state.weather)
+  const loading               = computed(() => state.loading)
+  const error                 = computed(() => state.error)
+  const risk                  = computed(() => state.risk)
+  const recommandations       = computed(() => state.recommandations)
+  const recommandationsLoading = computed(() => state.recommandationsLoading)
 
   const sourceLabel = computed(() => {
-    if (state.geolocationMessage) {
-      return state.geolocationMessage
-    }
-
+    if (state.geolocationMessage) return state.geolocationMessage
     return WEATHER_SOURCE_LABELS[state.source] || 'Région sélectionnée'
   })
 
-  const errorMessage = computed(() => (error.value ? getMessageErreurMeteo(error.value) : null))
+  const errorMessage = computed(() =>
+    error.value ? getMessageErreurMeteo(error.value) : null
+  )
 
   async function selectRegion(regionId) {
     try {
@@ -50,7 +54,23 @@ export function useClimat() {
       setWeatherLoading()
 
       const nextWeather = await fetchWeatherByRegion(state.region)
+
+      // 1. Calcul météo + risque (setWeatherSuccess appelle calculateRiskLLM)
       await setWeatherSuccess(nextWeather, 'manuel')
+
+      // 2. Génération des recommandations basées sur le risque calculé
+      //    Lancée en parallèle de l'affichage du dashboard (non bloquante)
+      if (state.risk && state.weather) {
+        setRecommandationsLoading()
+        const recs = await getRecommendations(
+          state.risk,
+          state.weather.temp,
+          state.weather.humidity,
+          state.region.name,
+        )
+        setRecommandations(recs)
+      }
+
     } catch (caughtError) {
       setWeatherError(caughtError)
     }
@@ -65,12 +85,10 @@ export function useClimat() {
       state.loading = true
       state.error = null
       state.weather = null
-
       const result = await getRegionFromPosition({ fallbackRegionId: DEFAULT_REGION_ID })
       const geolocationMessage = result.reason
         ? fallbackMessages[result.reason]
         : 'Météo chargée depuis votre position au Sénégal.'
-
       await selectRegion(result.region.id)
       state.source = result.source
       state.geolocationMessage = geolocationMessage
@@ -84,6 +102,8 @@ export function useClimat() {
     selectedRegion,
     weather,
     risk,
+    recommandations,         // ← nouveau
+    recommandationsLoading,  // ← nouveau
     loading,
     error,
     errorMessage,

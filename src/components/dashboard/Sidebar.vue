@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import {CloudSun, TriangleAlert, TrendingUp, Settings, Leaf } from '@lucide/vue'
+import {CloudSun, TriangleAlert, TrendingUp, Settings, Leaf } from 'lucide-vue-next'
 
 defineProps({
   activeId: {
@@ -65,6 +65,7 @@ const items = [
   position: sticky;
   top: 0;
   width: 220px;
+  flex-shrink: 0; 
   height: 100vh;
   padding: 1.25rem 1rem;
   display: flex;

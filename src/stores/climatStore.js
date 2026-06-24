@@ -18,8 +18,21 @@ const state = reactive({
   error: null,
   source: 'manuel',
   geolocationMessage: null,
-  risk : null
+  risk: null,
+  recommandations: [],
+  recommandationsLoading: false,
 })
+
+
+export function setRecommandations(recommandations) {
+  state.recommandations = recommandations
+  state.recommandationsLoading = false
+}
+
+export function setRecommandationsLoading() {
+  state.recommandationsLoading = true
+}
+
 
 export function getClimatState() {
   return state
