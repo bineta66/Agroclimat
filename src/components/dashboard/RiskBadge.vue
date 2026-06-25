@@ -64,6 +64,8 @@
       </div>
     </div>
   </div>
+  <hr>
+  <h3>Recomendatioons</h3>
   <div v-if="recommandationsLoading" class="reco-loading">
     Génération des recommandations…
   </div>
