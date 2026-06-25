@@ -1,17 +1,14 @@
 <template>
   <svg
     baseProfile="tiny"
-    fill="#6f9c76"
-    height="736"
+    class="w-full h-auto max-h-[400px] md:max-h-[460px]"
     stroke="#ffffff"
     stroke-linecap="round"
     stroke-linejoin="round"
     stroke-width=".5"
     version="1.2"
     viewBox="0 0 1000 736"
-    width="1000"
     xmlns="http://www.w3.org/2000/svg"
-    class="senegal-map"
    >
     <g id="features">
       <path
@@ -93,11 +90,6 @@ export default {
 </script>
 
 <style scoped>
-.senegal-map {
-  width: 100%;
-  height: auto;
-}
-
 .region {
   fill: #55c96b;
   cursor: pointer;
@@ -110,10 +102,9 @@ export default {
 }
 
 .region--selected {
-  fill: #ff9800;
+  fill: #04240b;
   stroke-width: 1;
 }
-
 
 .region-label {
     font-size: 24px;
@@ -122,5 +113,11 @@ export default {
     text-anchor: middle;
     dominant-baseline: middle;
     pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .region-label {
+    font-size: 16px;
+  }
 }
 </style>
