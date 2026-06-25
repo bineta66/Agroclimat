@@ -1,8 +1,8 @@
 <template>
-  <div class="error-message" role="alert">
-    <strong>{{ title }}</strong>
-    <p>{{ message }}</p>
-    <button type="button" @click="$emit('retry')">
+  <div class="flex flex-col gap-2 p-4 border border-red-200 rounded-xl bg-red-50 text-red-900" role="alert">
+    <strong class="text-base font-bold">Impossible de charger la météo</strong>
+    <p class="m-0 leading-relaxed">Vérifiez la clé API OpenWeatherMap, votre connexion internet, puis réessayez.</p>
+    <button type="button" class="w-fit border-0 rounded-full px-3 py-2 text-white bg-red-600 font-bold cursor-pointer hover:bg-red-700 transition-colors" @click="$emit('retry')">
       Recharger Dakar
     </button>
   </div>

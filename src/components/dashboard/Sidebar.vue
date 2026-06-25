@@ -1,39 +1,39 @@
 <template>
-  <aside class="sidebar">
+  <aside class="h-full flex flex-col gap-6 p-5 text-gray-200 border-r border-slate-600 sidebar-bg overflow-hidden">
     <!-- Logo / titre -->
-    <div class="sidebar-logo">
-      <div class="logo-mark">
+    <div class="flex items-center gap-2">
+      <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
         <img
           src="/image.png"
           alt="Logo AgroClimat"
-          class="logo-image"
+          class="w-8 h-8 object-contain"
         />
       </div>
 
-      <div class="logo-text">
-        <span class="logo-title">AgroClimat</span>
-        <span class="logo-subtitle">Sénégal</span>
+      <div class="flex flex-col leading-tight">
+        <span class="text-base font-bold text-white">AgroClimat</span>
+        <span class="text-xs text-gray-400">Sénégal</span>
       </div>
     </div>
 
     <!-- Navigation -->
-    <nav class="sidebar-nav" aria-label="Navigation principale">
+    <nav class="flex flex-col gap-1 flex-1" aria-label="Navigation principale">
       <button
         v-for="item in items"
         :key="item.id"
         type="button"
-        class="nav-item"
-        :class="{ 'nav-item--active': item.id === activeId }"
+        class="w-full border-0 rounded-lg px-3 py-2.5 bg-transparent text-left flex items-center gap-2.5 text-sm cursor-pointer transition-all duration-150"
+        :class="item.id === activeId ? 'bg-green-900/40 text-sky-200 font-bold' : 'hover:bg-green-900/30 hover:translate-x-1'"
         :aria-current="item.id === activeId ? 'page' : undefined"
-        @click="emit('change-tab', item.id)"
+        @click="handleClick(item.id)"
       >
         <component
           :is="item.icon"
-          class="nav-icon"
+          class="flex-shrink-0"
           :size="18"
           aria-hidden="true"
         />
-        <span class="nav-label">{{ item.label }}</span>
+        <span class="flex-1">{{ item.label }}</span>
       </button>
     </nav>
   </aside>
@@ -42,6 +42,7 @@
 <script setup>
 import { CloudSun, Bot } from '@lucide/vue'
 
+
 defineProps({
   activeId: {
     type: String,
@@ -49,154 +50,22 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['change-tab'])
+const emit = defineEmits(['change-tab', 'close'])
 
 const items = [
   { id: 'meteo', label: 'Météo', icon: CloudSun },
   { id: 'assistant', label: 'Assistant agricole', icon: Bot },
 ]
+
+function handleClick(tabId) {
+  emit('change-tab', tabId)
+  emit('close')
+}
 </script>
 
 <style scoped>
-.sidebar {
-  position: sticky;
-  top: 0;
-  width: 220px;
-  height: 100vh;
-  padding: 1.25rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.98)),
-    url('../../../public/paysans1.png') center/cover no-repeat;
-  color: #e5e7eb;
-  border-right: 1px solid rgba(148, 163, 184, 1);
-}
-
-/* Logo */
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/*  MODIFIÉ : plus de cercle blanc */
-.logo-mark {
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logo-image {
-  width: 300%;
-  height: 300%;
-  object-fit: contain;
-}
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-
-.logo-title {
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.logo-subtitle {
-  font-size: 0.75rem;
-  color: #9ca3af;
-}
-
-/* Navigation */
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.nav-item {
-  width: 100%;
-  border: none;
-  border-radius: 0.6rem;
-  padding: 0.55rem 0.7rem;
-  background: transparent;
-  color: inherit;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    transform 0.1s ease,
-    color 0.15s ease;
-}
-
-.nav-item:hover {
-  background: rgba(5, 65, 10, 0.35);
-  transform: translateX(2px);
-}
-
-.nav-item:focus-visible {
-  outline: 2px solid #064f0f;
-  outline-offset: 2px;
-}
-
-.nav-item--active {
-  background: rgba(50, 83, 45, 0.626);
-  color: #e0f2fe;
-  font-weight: 700;
-}
-
-.nav-icon {
-  flex-shrink: 0;
-}
-
-.nav-label {
-  flex: 1;
-  text-align: left;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    min-height: auto;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    overflow-x: auto;
-    border-right: none;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.4);
-  }
-
-  .sidebar-logo {
-    flex-shrink: 0;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    gap: 0.3rem;
-  }
-
-  .nav-item {
-    width: auto;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .nav-label {
-    display: none;
-  }
-
-  .nav-item--active .nav-label {
-    display: inline;
-  }
+.sidebar-bg {
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)),
+    url('/paysans1.png') center/cover no-repeat;
 }
 </style>

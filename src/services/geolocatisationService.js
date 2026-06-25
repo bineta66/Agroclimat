@@ -52,8 +52,6 @@ export async function getPositionActuelle() {
     )
   }
 
-  await refuserSiPermissionRefusee()
-
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
       resolve,
@@ -62,7 +60,7 @@ export async function getPositionActuelle() {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 5000,
         maximumAge: 600000,
       }
     )

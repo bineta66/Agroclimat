@@ -1,74 +1,59 @@
 <template>
-  <div v-if="risk" class="risk-card">
-
+  <div v-if="risk" class="mt-3 p-3 rounded-xl border border-gray-200 bg-gray-50 flex flex-col gap-3">
     <!-- Titre -->
-    <div class="risk-header">
-      <span class="risk-title">Indice de risque climatique</span>
-      <span class="gauge-info" title="Calculé à partir de la température et de l'humidité">ⓘ</span>
+    <div class="flex justify-between items-center gap-2">
+      <span class="text-sm font-semibold text-gray-900">Indice de risque climatique</span>
+      <span class="text-sm text-gray-400 cursor-help" title="Calculé à partir de la température et de l'humidité">ⓘ</span>
     </div>
 
     <!-- Corps : jauge à gauche + infos à droite -->
-    <div class="risk-body">
-
+    <div class="flex flex-col sm:flex-row items-center sm:items-center gap-4">
       <!-- Jauge circulaire SVG -->
-      <div class="gauge-wrap">
-        <svg viewBox="0 0 120 120" class="gauge-svg">
-          <!-- Arc fond gris (270°) -->
-          <circle
-            cx="60" cy="60" r="48"
-            fill="none"
-            stroke="#e5e7eb"
-            stroke-width="10"
-            stroke-linecap="round"
-            :stroke-dasharray="`${ARC_LENGTH} ${FULL_CIRCLE}`"
-            :stroke-dashoffset="-GAP / 2"
-            transform="rotate(90 60 60)"
-          />
-          <!-- Arc coloré proportionnel au score -->
-          <circle
-            cx="60" cy="60" r="48"
-            fill="none"
-            :stroke="risk.color"
-            stroke-width="10"
-            stroke-linecap="round"
-            :stroke-dasharray="`${scoreArc} ${FULL_CIRCLE}`"
-            :stroke-dashoffset="-GAP / 2"
-            transform="rotate(90 60 60)"
-            class="gauge-progress"
-          />
-          <!-- Score au centre -->
-          <text x="60" y="56" text-anchor="middle" class="gauge-score-text">
-            {{ risk.score }}
-          </text>
-          <text x="60" y="70" text-anchor="middle" class="gauge-max-text">/100</text>
+      <div class="flex-shrink-0 w-[90px] h-[90px]">
+        <svg viewBox="0 0 120 120" class="w-full h-full">
+          <circle cx="60" cy="60" r="48" fill="none" stroke="#e5e7eb" stroke-width="10" stroke-linecap="round" :stroke-dasharray="`${ARC_LENGTH} ${FULL_CIRCLE}`" :stroke-dashoffset="-GAP / 2" transform="rotate(90 60 60)" />
+          <circle cx="60" cy="60" r="48" fill="none" :stroke="risk.color" stroke-width="10" stroke-linecap="round" :stroke-dasharray="`${scoreArc} ${FULL_CIRCLE}`" :stroke-dashoffset="-GAP / 2" transform="rotate(90 60 60)" class="gauge-progress" />
+          <text x="60" y="56" text-anchor="middle" class="text-[28px] font-extrabold fill-gray-900" style="font-family: system-ui, sans-serif;">{{ risk.score }}</text>
+          <text x="60" y="70" text-anchor="middle" class="text-[11px] fill-gray-500" style="font-family: system-ui, sans-serif;">/100</text>
         </svg>
       </div>
 
       <!-- Infos à droite -->
-      <div class="risk-info">
-        <!-- Badge label (conservé de l'original) -->
-        <div class="risk-badge" :style="{ borderColor: risk.color }">
-          <span class="risk-dot" :style="{ backgroundColor: risk.color }"></span>
-          <span class="risk-label">{{ risk.label }}</span>
+      <div class="flex flex-col gap-2 min-w-0 flex-1">
+        <!-- Badge label -->
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border bg-white" :style="{ borderColor: risk.color }">
+          <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" :style="{ backgroundColor: risk.color }"></span>
+          <span class="text-sm font-semibold text-gray-900">{{ risk.label }}</span>
         </div>
 
         <!-- Score texte -->
-        <span class="risk-score" :style="{ color: risk.color }">
+        <span class="text-sm font-bold" :style="{ color: risk.color }">
           {{ risk.score }} / 100
         </span>
 
-        <!-- Note contextuelle (conservée de l'original) -->
-        <p v-if="showContext && temp != null && humidity != null" class="risk-note">
+        <!-- Note contextuelle -->
+        <p v-if="showContext && temp != null && humidity != null" class="text-xs text-gray-500 leading-relaxed m-0">
           Calculé à partir de {{ temp.toFixed(1) }}°C et {{ humidity }}% d'humidité.
         </p>
       </div>
     </div>
   </div>
+
+  <div v-if="recommandationsLoading" class="mt-3 text-xs text-gray-400">
+    Génération des recommandations…
+  </div>
+
+  <ul v-else-if="recommandations.length" class="mt-3 p-0 list-none flex flex-col gap-2">
+    <li v-for="(reco, i) in recommandations" :key="i" class="px-3 py-2 rounded-lg bg-green-50 border-l-[3px] border-green-600 text-xs text-green-800 leading-relaxed">
+      {{ reco }}
+    </li>
+  </ul>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-
+import { useClimat } from '../../composables/useClimat'
+const { recommandations, recommandationsLoading } = useClimat()
 const props = defineProps({
   risk: {
     type: Object,
@@ -101,112 +86,7 @@ const scoreArc = computed(() =>
 </script>
 
 <style scoped>
-.risk-card {
-  margin-top: 0.75rem;
-  padding: 0.8rem 0.9rem;
-  border-radius: 0.9rem;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.risk-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.risk-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.gauge-info {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  cursor: help;
-}
-
-/* Corps : jauge + infos côte à côte */
-.risk-body {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* Jauge SVG */
-.gauge-wrap {
-  flex-shrink: 0;
-  width: 90px;
-  height: 90px;
-}
-
-.gauge-svg {
-  width: 100%;
-  height: 100%;
-}
-
 .gauge-progress {
   transition: stroke-dasharray 0.6s ease;
-}
-
-.gauge-score-text {
-  font-size: 28px;
-  font-weight: 800;
-  fill: #111827;
-  font-family: system-ui, sans-serif;
-}
-
-.gauge-max-text {
-  font-size: 11px;
-  fill: #6b7280;
-  font-family: system-ui, sans-serif;
-}
-
-/* Infos à droite de la jauge */
-.risk-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
-.risk-score {
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.risk-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  background: #ffffff;
-}
-
-.risk-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-.risk-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.risk-note {
-  margin: 0;
-  font-size: 0.75rem;
-  color: #6b7280;
-  line-height: 1.4;
 }
 </style>

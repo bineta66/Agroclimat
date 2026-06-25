@@ -1,32 +1,41 @@
 <template>
-  <header class="navbar">
-    <!-- Recherche -->
-    <div class="search-wrapper">
-      <Search class="search-icon" :size="18" />
+  <header class="w-full min-h-[56px] sticky top-0 flex flex-wrap md:flex-nowrap justify-between items-center gap-3 p-3 md:p-4 bg-white border border-gray-100 rounded-xl shadow-sm z-30">
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        class="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 cursor-pointer"
+        aria-label="Menu"
+        @click="$emit('toggle-sidebar')"
+      >
+        <Menu :size="18" />
+      </button>
 
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Rechercher une région..."
-        class="search-input"
-      />
+      <div class="relative w-full md:w-72 lg:w-80">
+        <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" :size="16" />
+
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher une région..."
+          class="w-full h-10 pl-9 pr-3 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-900 outline-none transition-all focus:border-green-600 focus:bg-white focus:ring-2 focus:ring-green-100"
+        />
+      </div>
     </div>
 
-    <!-- Actions -->
-    <div class="navbar-actions">
+    <div class="flex items-center gap-2">
       <button
-        class="position-button"
+        class="flex items-center gap-1.5 px-3 py-2 border-0 rounded-full bg-green-50 text-green-800 text-xs font-semibold cursor-pointer transition-all hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="loading"
         @click="$emit('use-position')"
       >
-        <MapPin :size="18" />
-        <span>Ma position</span>
+        <MapPin :size="16" />
+        <span class="hidden sm:inline">Ma position</span>
       </button>
 
-      <button class="notification-button" aria-label="Alertes">
-        <Bell :size="20" />
+      <button class="relative w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 cursor-pointer hover:bg-gray-50" aria-label="Alertes">
+        <Bell :size="18" />
 
-        <span v-if="hasAlert" :class="['notification-badge', badgeClass]">
+        <span v-if="hasAlert" :class="['absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center border-2 border-white', badgeClass]">
           {{ badgeLabel }}
         </span>
       </button>
@@ -36,7 +45,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Search, MapPin, Bell } from 'lucide-vue-next'
+import { Search, MapPin, Bell, Menu } from 'lucide-vue-next'
 import { useAlertStore } from '../../stores/alertStore'
 
 defineProps({
@@ -46,7 +55,7 @@ defineProps({
   }
 })
 
-defineEmits(['use-position'])
+defineEmits(['use-position', 'toggle-sidebar'])
 
 const alertStore = useAlertStore()
 
@@ -64,221 +73,8 @@ const badgeLabel = computed(() => {
 
 const badgeClass = computed(() => {
   if (!hasAlert.value) return ''
-  if (alertLevel.value === alertStore.ALERT_LEVEL.ROUGE) return 'notification-badge--rouge'
-  if (alertLevel.value === alertStore.ALERT_LEVEL.ORANGE) return 'notification-badge--orange'
+  if (alertLevel.value === alertStore.ALERT_LEVEL.ROUGE) return 'bg-red-500'
+  if (alertLevel.value === alertStore.ALERT_LEVEL.ORANGE) return 'bg-orange-500'
   return ''
 })
 </script>
-
-<style scoped>
-/* ===========================
-   NAVBAR
-=========================== */
-
-.navbar {
-  width: 100%;
-  min-height: 70px;
-  position: sticky;
-  top: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 0.8rem 1.5rem;
-
-  background: #ffffff;
-  border: 1px solid #edf2f7;
-  border-radius: 18px;
-
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(15, 23, 42, 0.05);
-
-  box-sizing: border-box;
-}
-
-/* ===========================
-   SEARCH
-=========================== */
-
-.search-wrapper {
-  position: relative;
-  width: 360px;
-  max-width: 100%;
-}
-
-.search-icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-}
-
-.search-input {
-  width: 100%;
-  height: 48px;
-
-  padding: 0 16px 0 46px;
-
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-
-  background: #f8fafc;
-
-  font-size: 0.95rem;
-  color: #0f172a;
-
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-.search-input:focus {
-  border-color: #22c55e;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-}
-
-/* ===========================
-   ACTIONS
-=========================== */
-
-.navbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* ===========================
-   POSITION BUTTON
-=========================== */
-
-.position-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  padding: 0.8rem 1.4rem;
-
-  border: none;
-  border-radius: 999px;
-
-  background: #dcfce7;
-  color: #166534;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.position-button:hover:not(:disabled) {
-  background: #bbf7d0;
-  transform: translateY(-1px);
-}
-
-.position-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ===========================
-   NOTIFICATION
-=========================== */
-
-.notification-button {
-  position: relative;
-
-  width: 48px;
-  height: 48px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-  border: 1px solid #e2e8f0;
-
-  background: #ffffff;
-  color: #475569;
-
-  cursor: pointer;
-}
-
-.notification-button:hover {
-  background: #f8fafc;
-}
-
-.notification-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: #ef4444;
-  color: #ffffff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #ffffff;
-}
-
-.notification-badge--rouge {
-  background: #ef4444;
-}
-
-.notification-badge--orange {
-  background: #f97316;
-}
-
-/* ===========================
-   AVATAR
-=========================== */
-
-.avatar-wrapper {
-  width: 48px;
-  height: 48px;
-}
-
-.avatar {
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-  border-radius: 50%;
-
-  border: 2px solid #f1f5f9;
-}
-
-/* ===========================
-   RESPONSIVE
-=========================== */
-
-@media (max-width: 768px) {
-  .navbar {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .search-wrapper {
-    width: 100%;
-  }
-
-  .position-button span {
-    display: none;
-  }
-
-  .position-button {
-    padding: 0.8rem;
-  }
-}
-</style>

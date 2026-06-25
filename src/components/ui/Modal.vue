@@ -1,14 +1,14 @@
 <template>
   <Teleport to="body">
-    <div v-if="modelValue" class="modal-overlay" @click.self="close">
-      <div class="modal-container" :class="`modal-container--${size}`">
-        <div class="modal-header">
-          <h3 class="modal-title">{{ title }}</h3>
-          <button type="button" class="modal-close" @click="close" aria-label="Fermer">
-            <X :size="20" />
+    <div v-if="modelValue" class="fixed inset-0 bg-slate-900/40 flex items-center justify-center p-4 z-50" @click.self="close">
+      <div class="bg-white rounded-xl shadow-lg w-full max-h-[85vh] flex flex-col" :class="sizeClass">
+        <div class="flex items-center justify-between p-4 md:p-5 border-b border-gray-100">
+          <h3 class="m-0 text-base md:text-lg font-bold text-gray-900">{{ title }}</h3>
+          <button type="button" class="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors" @click="close" aria-label="Fermer">
+            <X :size="18" />
           </button>
         </div>
-        <div class="modal-body">
+        <div class="p-4 md:p-5 overflow-y-auto">
           <slot />
         </div>
       </div>
@@ -18,6 +18,12 @@
 
 <script setup>
 import { X } from 'lucide-vue-next'
+
+const sizeClass = {
+  small: 'max-w-[420px]',
+  medium: 'max-w-[640px]',
+  large: 'max-w-[860px]',
+}
 
 defineProps({
   modelValue: {
@@ -40,75 +46,3 @@ function close() {
   emit('update:modelValue', false)
 }
 </script>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  z-index: 2000;
-}
-
-.modal-container {
-  background: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
-  width: 100%;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-container--small {
-  max-width: 420px;
-}
-
-.modal-container--medium {
-  max-width: 640px;
-}
-
-.modal-container--large {
-  max-width: 860px;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.modal-close {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #475569;
-  cursor: pointer;
-}
-
-.modal-close:hover {
-  background: #f8fafc;
-}
-
-.modal-body {
-  padding: 1.25rem;
-  overflow-y: auto;
-}
-</style>
