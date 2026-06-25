@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { fetchWeatherByRegion, getMessageErreurMeteo } from '../services/climatService'
 import { getRegionFromPosition } from '../services/geolocatisationService'
 import { getRecommendations } from '../services/recommendationLLM'
@@ -14,6 +14,7 @@ import {
   setRecommandations,
   setRecommandationsLoading,
 } from '../stores/climatStore'
+import { useAlertStore } from '../stores/alertStore'
 
 const fallbackMessages = {
   outside_senegal:     'Position hors Sénégal : Dakar chargé par défaut.',
@@ -25,6 +26,7 @@ const fallbackMessages = {
 
 export function useClimat() {
   const state = getClimatState()
+  const alertStore = useAlertStore()
 
   const selectedRegionId = computed({
     get: () => state.selectedRegionId,
@@ -38,6 +40,22 @@ export function useClimat() {
   const risk                  = computed(() => state.risk)
   const recommandations       = computed(() => state.recommandations)
   const recommandationsLoading = computed(() => state.recommandationsLoading)
+
+  watch(weather, (newWeather) => {
+    if (newWeather && !loading.value) {
+      alertStore.updateWeather({
+        temp: newWeather.temp,
+        feelsLike: newWeather.feelsLike,
+        humidity: newWeather.humidity,
+        windSpeed: newWeather.windSpeed,
+        windDirection: newWeather.windDirection,
+        description: newWeather.description,
+        regionName: selectedRegion.value?.name || null,
+      })
+      alertStore.computeAlert()
+      alertStore.generateAlertMessage()
+    }
+  }, { deep: true })
 
   const sourceLabel = computed(() => {
     if (state.geolocationMessage) return state.geolocationMessage

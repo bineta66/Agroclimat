@@ -120,7 +120,12 @@ onUnmounted(() => {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 200px;
-  margin-top: 1rem;
+  height: 180px;
+}
+
+@media (min-width: 768px) {
+  .chart-container {
+    height: 200px;
+  }
 }
 </style>

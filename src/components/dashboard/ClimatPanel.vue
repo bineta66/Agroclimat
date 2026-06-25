@@ -1,20 +1,20 @@
 <template>
-  <section class="climat-panel">
+  <section class="flex flex-col">
     <div v-if="loading" class="panel-body">
       <LoadingSkeleton />
     </div>
 
     <ErreurMessage v-else-if="error" :error="error" @retry="$emit('retry')" />
 
-<div v-else-if="weather && region" class="panel-body">
-       <p class="panel-subtitle">Données temps réel</p>
-       <ClimatCard :region="region" :weather="weather" />
-       <p class="location-note">
-         Région : {{ region.name }} · Code : {{ region.code }}
-       </p>
-     </div>
+    <div v-else-if="weather && region" class="panel-body flex flex-col gap-4">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Données temps réel</p>
+      <ClimatCard :region="region" :weather="weather" />
+      <p class="text-sm text-gray-500">
+        Région : {{ region.name }} · Code : {{ region.code }}
+      </p>
+    </div>
 
-    <div v-else class="panel-body empty-state">
+    <div v-else class="panel-body empty-state min-h-[180px] flex items-center justify-center border border-dashed border-gray-300 rounded-xl bg-gray-50 text-gray-500 text-center">
       Sélectionnez une région sur la carte pour charger sa météo.
     </div>
   </section>
@@ -50,42 +50,3 @@ defineProps({
 
 defineEmits(['retry'])
 </script>
-
-<style scoped>
-.climat-panel {
-  display: flex;
-  flex-direction: column;
-}
-
-.panel-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.panel-subtitle {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.location-note {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.9rem;
-}
-
-.empty-state {
-  min-height: 180px;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed #cbd5e1;
-  border-radius: 0.9rem;
-  color: #64748b;
-  background: #f8fafc;
-  text-align: center;
-}
-</style>
