@@ -38,8 +38,9 @@
       </div>
     </div>
   </div>
-
-  <div v-if="recommandationsLoading" class="mt-3 text-xs text-gray-400">
+  <hr>
+  <h3>Recomendatioons</h3>
+  <div v-if="recommandationsLoading" class="reco-loading">
     Génération des recommandations…
   </div>
 
